@@ -21,6 +21,7 @@ function calcularResultado(trade, exit) {
 
 export default function TradesTable({ trades, deleteTrade, updateTrade }) {
   const [modal, setModal] = useState({ open: false, idx: null, value: "" });
+  const [deleteConfirm, setDeleteConfirm] = useState({ open: false, idx: null });
   // Responsive: móvil
   const [isMobile, setIsMobile] = React.useState(false);
   React.useEffect(() => {
@@ -65,6 +66,20 @@ export default function TradesTable({ trades, deleteTrade, updateTrade }) {
   }
   function handleModalCancel() {
     setModal({ open: false, idx: null, value: "" });
+  }
+
+  function handleDeleteConfirm() {
+    if (deleteConfirm.idx !== null) {
+      const trade = pagedTrades[deleteConfirm.idx];
+      if (trade && trade.id) {
+        deleteTrade(trade.id);
+      }
+    }
+    setDeleteConfirm({ open: false, idx: null });
+  }
+
+  function handleDeleteCancel() {
+    setDeleteConfirm({ open: false, idx: null });
   }
 
   if (isMobile) {
@@ -126,7 +141,7 @@ export default function TradesTable({ trades, deleteTrade, updateTrade }) {
                       <button
                         className="text-xs text-red-400 hover:text-red-600"
                         title="Borrar trade"
-                        onClick={() => deleteTrade(trade.id)}
+                        onClick={() => setDeleteConfirm({ open: true, idx })}
                       >
                         🗑️
                       </button>
@@ -278,7 +293,7 @@ export default function TradesTable({ trades, deleteTrade, updateTrade }) {
                       <button
                         className="text-xs text-red-400 hover:text-red-600"
                         title="Borrar trade"
-                        onClick={() => deleteTrade(trade.id)}
+                        onClick={() => setDeleteConfirm({ open: true, idx })}
                       >
                         🗑️
                       </button>
@@ -335,6 +350,20 @@ export default function TradesTable({ trades, deleteTrade, updateTrade }) {
             }
             .animate-fadein { animation: fadein 0.25s cubic-bezier(.4,2,.6,1) both; }
           `}</style>
+        </div>
+      )}
+      {/* Modal para confirmar borrado de trade */}
+      {deleteConfirm.open && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-fadein">
+          <div className="bg-card p-6 rounded-xl shadow-lg border border-slate-800 w-full max-w-xs relative">
+            <button onClick={handleDeleteCancel} className="absolute right-3 top-3 text-gray-400 hover:text-white">✕</button>
+            <h3 className="text-lg font-bold mb-4 text-center">¿Eliminar trade?</h3>
+            <div className="mb-4 text-center text-sm text-gray-300">Esta acción no se puede deshacer.<br/>¿Seguro que quieres borrar el trade?</div>
+            <div className="flex gap-2 justify-end mt-4">
+              <button onClick={handleDeleteCancel} className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600">Cancelar</button>
+              <button onClick={handleDeleteConfirm} className="px-4 py-2 rounded bg-[#c53b53] hover:bg-[#a12d3a] text-white font-semibold">Eliminar</button>
+            </div>
+          </div>
         </div>
       )}
       {/* Paginación Desktop */}
