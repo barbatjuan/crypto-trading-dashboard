@@ -12,13 +12,14 @@ export default function BtcCandlesChart() {
     let candleSeries;
     let resizeObserver;
     let destroyed = false;
+    let intervalId;
 
-    async function fetchCandles() {
+    async function fetchCandlesAndUpdate() {
       setLoading(true);
       setError(null);
       try {
         const res = await fetch(
-          "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=4h&limit=120"
+          "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=4h&limit=200"
         );
         if (!res.ok) throw new Error("No se pudieron cargar los datos de velas");
         const data = await res.json();
@@ -36,7 +37,7 @@ export default function BtcCandlesChart() {
         chartContainerRef.current.innerHTML = "";
         chart = LightweightCharts.createChart(chartContainerRef.current, {
           width: chartContainerRef.current.clientWidth,
-          height: 500,
+          height: 400,
           layout: {
             background: { color: "#0f172a" },
             textColor: "#e5e7eb",
@@ -78,7 +79,8 @@ export default function BtcCandlesChart() {
         setLoading(false);
       }
     }
-    fetchCandles();
+    fetchCandlesAndUpdate();
+    intervalId = setInterval(fetchCandlesAndUpdate, 10000);
     return () => {
       destroyed = true;
       if (resizeObserver && chartContainerRef.current) {
@@ -86,6 +88,9 @@ export default function BtcCandlesChart() {
       }
       if (chartInstanceRef.current) {
         chartInstanceRef.current.remove();
+      }
+      if (intervalId) {
+        clearInterval(intervalId);
       }
     };
   }, []);
@@ -96,7 +101,7 @@ export default function BtcCandlesChart() {
       <div
         ref={chartContainerRef}
         className="w-full rounded-lg shadow bg-card"
-        style={{ height: 500, minHeight: 300 }}
+        style={{ height: 400, minHeight: 250 }}
       />
       {loading && (
         <div className="text-center text-gray-400 mt-2 animate-pulse">Cargando gráfico...</div>
