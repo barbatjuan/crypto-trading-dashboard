@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardHeader from "./components/DashboardHeader";
 import StatsCards from "./components/StatsCards";
 import LivePrices from "./components/LivePrices";
@@ -7,18 +7,42 @@ import TradesTable from "./components/TradesTable";
 import TradeForm from "./components/TradeForm";
 import TradesCharts from "./components/TradesCharts";
 import useSupabaseTrades from "./hooks/useSupabaseTrades";
+import { supabase } from "./supabaseClient";
+import Login from "./components/Login";
 
 export default function App() {
-  React.useEffect(() => {
+  useEffect(() => {
     document.body.classList.add("dark");
     return () => document.body.classList.remove("dark");
   }, []);
+
   const [showForm, setShowForm] = useState(false);
   const { trades, loading, error, addTrade, deleteTrade, updateTrade } = useSupabaseTrades();
 
+  const [session, setSession] = useState(null);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
+
+  function handleLogout() {
+    supabase.auth.signOut();
+  }
+
+  if (!session) {
+    return <Login onLogin={() => window.location.reload()} />;
+  }
+
   return (
     <div className="min-h-screen bg-surface text-gray-100">
-      <DashboardHeader onAddTrade={() => setShowForm(true)} />
+      <DashboardHeader onAddTrade={() => setShowForm(true)} onLogout={handleLogout} />
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-8">
         <LivePrices />
         <BtcCandlesChart />
@@ -37,3 +61,4 @@ export default function App() {
     </div>
   );
 }
+

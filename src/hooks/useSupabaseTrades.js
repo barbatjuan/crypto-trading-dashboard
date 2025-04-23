@@ -9,13 +9,27 @@ export default function useSupabaseTrades() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Cargar trades al inicio
+  // Cargar trades solo del usuario autenticado
   const fetchTrades = useCallback(async () => {
     setLoading(true);
     setError(null);
+    let user;
+    if (supabase.auth.getUser) {
+      const { data: userData } = await supabase.auth.getUser();
+      user = userData?.user;
+    } else {
+      user = supabase.auth.user();
+    }
+    if (!user) {
+      setError("No hay usuario autenticado");
+      setTrades([]);
+      setLoading(false);
+      return;
+    }
     const { data, error } = await supabase
       .from('trades')
-      .select('*') // No usar columns codificados ni comillas dobles
+      .select('*')
+      .eq('user_id', user.id)
       .order('open_date', { ascending: false });
     if (error) setError(error.message);
     setTrades((data || []).map(toCamel));
@@ -30,6 +44,18 @@ export default function useSupabaseTrades() {
   const addTrade = async (trade) => {
     setLoading(true);
     setError(null);
+    let user;
+    if (supabase.auth.getUser) {
+      const { data: userData } = await supabase.auth.getUser();
+      user = userData?.user;
+    } else {
+      user = supabase.auth.user();
+    }
+    if (!user) {
+      setError("No hay usuario autenticado");
+      setLoading(false);
+      return;
+    }
     // No enviar id, y asegurar tipos numéricos
     const {
       id, // eslint-disable-line no-unused-vars
@@ -47,6 +73,7 @@ export default function useSupabaseTrades() {
       amount: amount !== undefined && amount !== "" ? Number(amount) : null,
       open_date: rest.open_date === "" || rest.open_date === undefined ? null : rest.open_date,
       close_date: rest.close_date === "" || rest.close_date === undefined ? null : rest.close_date,
+      user_id: user.id, // <-- ¡AQUÍ!
     };
     console.log('Insertando trade en Supabase:', toSnake(tradeToSend));
     const { error } = await supabase.from('trades').insert([toSnake(tradeToSend)]);
@@ -117,6 +144,8 @@ export default function useSupabaseTrades() {
     if ('userId' in updatesSafe) {
       delete updatesSafe.userId;
     }
+    // Nunca permitir cambiar el user_id
+    updatesSafe.user_id = original?.user_id;
     console.log('Actualizando trade en Supabase:', updatesSafe);
     const { error } = await supabase.from('trades').update(updatesSafe).eq('id', id);
     if (error) {
@@ -125,6 +154,7 @@ export default function useSupabaseTrades() {
     }
     await fetchTrades();
   };
+
 
   return { trades, loading, error, addTrade, deleteTrade, updateTrade };
 }

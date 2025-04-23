@@ -29,11 +29,14 @@ export default function TradesTable({ trades, deleteTrade, updateTrade }) {
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, []);
-  // Paginación móvil
-  const PAGE_SIZE = 5;
+    // Paginación
+  const PAGE_SIZE = 5; // móvil
+  const PAGE_SIZE_DESKTOP = 10;
   const [page, setPage] = React.useState(1);
-  const pageCount = Math.ceil(trades.length / PAGE_SIZE);
-  const pagedTrades = trades.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
+  const isDesktop = !isMobile;
+  const pageSize = isMobile ? PAGE_SIZE : PAGE_SIZE_DESKTOP;
+  const pageCount = Math.ceil(trades.length / pageSize);
+  const pagedTrades = trades.slice((page-1)*pageSize, page*pageSize);
 
   function handleCloseTrade(idx) {
     setModal({ open: true, idx, value: "" });
@@ -233,7 +236,7 @@ export default function TradesTable({ trades, deleteTrade, updateTrade }) {
               <td colSpan={15} className="text-center text-gray-500 py-4">No hay operaciones registradas.</td>
             </tr>
           ) : (
-            trades.map((trade, idx) => {
+            pagedTrades.map((trade, idx) => {
               let result = '-';
               let resultPct = '-';
               let days = '-';
@@ -332,6 +335,26 @@ export default function TradesTable({ trades, deleteTrade, updateTrade }) {
             }
             .animate-fadein { animation: fadein 0.25s cubic-bezier(.4,2,.6,1) both; }
           `}</style>
+        </div>
+      )}
+      {/* Paginación Desktop */}
+      {isDesktop && pageCount > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-4">
+          <button
+            className="px-2 py-1 rounded bg-slate-800 text-gray-300 disabled:opacity-50"
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
+            Anterior
+          </button>
+          <span className="text-xs text-gray-400">Página {page} de {pageCount}</span>
+          <button
+            className="px-2 py-1 rounded bg-slate-800 text-gray-300 disabled:opacity-50"
+            onClick={() => setPage(p => Math.min(pageCount, p + 1))}
+            disabled={page === pageCount}
+          >
+            Siguiente
+          </button>
         </div>
       )}
     </div>
