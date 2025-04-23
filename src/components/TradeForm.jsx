@@ -95,7 +95,7 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
     onSave(formToSend);
     onClose();
     setForm(initial || {
-      openDate: "",
+      openDate: new Date().toISOString().slice(0, 10),
       closeDate: "",
       pair: "BTC/USDT",
       type: "Spot",
