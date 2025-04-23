@@ -90,25 +90,24 @@ export default function TradesTable({ trades, deleteTrade, updateTrade }) {
                 <td className="px-2 py-1">{trade.exit || <span className="text-gray-400">-</span>}</td>
                 <td className="px-2 py-1">{trade.expectedExit}</td>
                 <td className="px-2 py-1">{trade.amount}</td>
-                {/* Calcula resultado, % y días solo si el trade está cerrado */}
+                {/* Muestra resultado y % si existen en el trade (de Supabase), si no, calcula en tiempo real */}
                 {trade.exit && trade.closeDate ? (
-                  <>
-                    {(() => {
-                      const { result, resultPct } = calcularResultado(trade, trade.exit);
-                      // Días entre openDate y closeDate
-                      let days = '-';
-                      if (trade.openDate && trade.closeDate) {
-                        const d1 = new Date(trade.openDate);
-                        const d2 = new Date(trade.closeDate);
-                        days = Math.max(1, Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)));
-                      }
-                      return <>
-                        <td className={`px-2 py-1 font-bold ${parseFloat(result) > 0 ? 'text-profit' : parseFloat(result) < 0 ? 'text-loss' : ''}`}>{result}</td>
-                        <td className={`px-2 py-1 ${parseFloat(resultPct) > 0 ? 'text-profit' : parseFloat(resultPct) < 0 ? 'text-loss' : ''}`}>{resultPct}%</td>
-                        <td className="px-2 py-1">{days}</td>
-                      </>;
-                    })()}
-                  </>
+                  (() => {
+                    // Usa los campos guardados si existen, si no calcula
+                    const result = trade.result !== undefined ? trade.result : calcularResultado(trade, trade.exit).result;
+                    const resultPct = trade.result_pct !== undefined ? trade.result_pct : calcularResultado(trade, trade.exit).resultPct;
+                    let days = 1;
+                    if (trade.openDate && trade.closeDate) {
+                      const d1 = new Date(trade.openDate);
+                      const d2 = new Date(trade.closeDate);
+                      days = Math.max(1, Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)));
+                    }
+                    return <>
+                      <td className={`px-2 py-1 font-bold ${parseFloat(result) > 0 ? 'text-profit' : parseFloat(result) < 0 ? 'text-loss' : ''}`}>{result}</td>
+                      <td className={`px-2 py-1 ${parseFloat(resultPct) > 0 ? 'text-profit' : parseFloat(resultPct) < 0 ? 'text-loss' : ''}`}>{resultPct}%</td>
+                      <td className="px-2 py-1">{days}</td>
+                    </>;
+                  })()
                 ) : (
                   <>
                     <td className="px-2 py-1">-</td>

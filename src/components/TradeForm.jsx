@@ -92,7 +92,16 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
     const { result, resultPct, ...formToSend } = form;
     // Si closeDate es "", mándalo como null
     if (formToSend.closeDate === "") formToSend.closeDate = null;
-    onSave(formToSend);
+    // Siempre enviar open_date en snake_case y nunca vacío
+    const tradeToSend = {
+      ...formToSend,
+      open_date: form.openDate || new Date().toISOString().slice(0, 10),
+      close_date: formToSend.closeDate || null,
+      pair: form.pair,
+    };
+    delete tradeToSend.openDate;
+    delete tradeToSend.closeDate;
+    onSave(tradeToSend);
     onClose();
     setForm(initial || {
       openDate: new Date().toISOString().slice(0, 10),

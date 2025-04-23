@@ -70,12 +70,55 @@ export default function useSupabaseTrades() {
   const updateTrade = async (id, updates) => {
     setLoading(true);
     setError(null);
-    // Nunca enviar open_date ni close_date como string vacío
+    // Nunca enviar open_date ni close_date como string vacío o null. Si falta, usar el valor original del trade.
     const updatesSafe = { ...updates };
-    if (updatesSafe.open_date === "" || updatesSafe.open_date === undefined) updatesSafe.open_date = null;
-    if (updatesSafe.close_date === "" || updatesSafe.close_date === undefined) updatesSafe.close_date = null;
-    console.log('Actualizando trade en Supabase:', toSnake(updatesSafe));
-    const { error } = await supabase.from('trades').update(toSnake(updatesSafe)).eq('id', id);
+    const original = trades.find(t => t.id === id);
+    if (!updatesSafe.open_date || updatesSafe.open_date === "") {
+      updatesSafe.open_date = original?.openDate || original?.open_date || new Date().toISOString().slice(0, 10);
+    }
+    if (updatesSafe.close_date === undefined) {
+      updatesSafe.close_date = original?.closeDate || original?.close_date || null;
+    }
+    // Asegura que entry, exit y amount sean numéricos como en addTrade
+    if (updatesSafe.entry !== undefined && updatesSafe.entry !== "") updatesSafe.entry = Number(updatesSafe.entry);
+    if (updatesSafe.exit !== undefined && updatesSafe.exit !== "") updatesSafe.exit = Number(updatesSafe.exit);
+    if (updatesSafe.amount !== undefined && updatesSafe.amount !== "") updatesSafe.amount = Number(updatesSafe.amount);
+    // Si hay exit y entry, calcula y agrega result/result_pct
+    const entry = parseFloat(updatesSafe.entry ?? original?.entry);
+    const exit = parseFloat(updatesSafe.exit ?? original?.exit);
+    const amount = parseFloat(updatesSafe.amount ?? original?.amount);
+    if (entry && exit && amount) {
+      let result, result_pct;
+      if ((updatesSafe.position ?? original?.position) === 'Short') {
+        result = ((entry - exit) * amount) / entry;
+        result_pct = ((entry - exit) / entry) * 100;
+      } else {
+        result = ((exit - entry) * amount) / entry;
+        result_pct = ((exit - entry) / entry) * 100;
+      }
+      updatesSafe.result = Number(result.toFixed(2));
+      updatesSafe.result_pct = Number(result_pct.toFixed(2));
+    }
+    // Renombra cualquier campo camelCase a snake_case antes de enviar
+    if ('closeDate' in updatesSafe) {
+      updatesSafe.close_date = updatesSafe.closeDate;
+      delete updatesSafe.closeDate;
+    }
+    if ('openDate' in updatesSafe) {
+      updatesSafe.open_date = updatesSafe.openDate;
+      delete updatesSafe.openDate;
+    }
+    if ('createdAt' in updatesSafe) {
+      delete updatesSafe.createdAt;
+    }
+    if ('expectedExit' in updatesSafe) {
+      delete updatesSafe.expectedExit;
+    }
+    if ('userId' in updatesSafe) {
+      delete updatesSafe.userId;
+    }
+    console.log('Actualizando trade en Supabase:', updatesSafe);
+    const { error } = await supabase.from('trades').update(updatesSafe).eq('id', id);
     if (error) {
       console.error('Error al actualizar en Supabase:', error);
       setError(error.message + (error.details ? ' - ' + error.details : ''));
