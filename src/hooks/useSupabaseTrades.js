@@ -45,6 +45,8 @@ export default function useSupabaseTrades() {
       expectedExit: expectedExit !== undefined && expectedExit !== "" ? Number(expectedExit) : null,
       exit: exit !== undefined && exit !== "" ? Number(exit) : null,
       amount: amount !== undefined && amount !== "" ? Number(amount) : null,
+      open_date: rest.open_date === "" || rest.open_date === undefined ? null : rest.open_date,
+      close_date: rest.close_date === "" || rest.close_date === undefined ? null : rest.close_date,
     };
     console.log('Insertando trade en Supabase:', toSnake(tradeToSend));
     const { error } = await supabase.from('trades').insert([toSnake(tradeToSend)]);
@@ -68,8 +70,12 @@ export default function useSupabaseTrades() {
   const updateTrade = async (id, updates) => {
     setLoading(true);
     setError(null);
-    console.log('Actualizando trade en Supabase:', toSnake(updates));
-    const { error } = await supabase.from('trades').update(toSnake(updates)).eq('id', id);
+    // Nunca enviar open_date ni close_date como string vacío
+    const updatesSafe = { ...updates };
+    if (updatesSafe.open_date === "" || updatesSafe.open_date === undefined) updatesSafe.open_date = null;
+    if (updatesSafe.close_date === "" || updatesSafe.close_date === undefined) updatesSafe.close_date = null;
+    console.log('Actualizando trade en Supabase:', toSnake(updatesSafe));
+    const { error } = await supabase.from('trades').update(toSnake(updatesSafe)).eq('id', id);
     if (error) {
       console.error('Error al actualizar en Supabase:', error);
       setError(error.message + (error.details ? ' - ' + error.details : ''));

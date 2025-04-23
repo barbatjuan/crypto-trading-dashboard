@@ -5,6 +5,7 @@ import LivePrices from "./components/LivePrices";
 import BtcCandlesChart from "./components/BtcCandlesChart";
 import TradesTable from "./components/TradesTable";
 import TradeForm from "./components/TradeForm";
+import TradesCharts from "./components/TradesCharts";
 import useSupabaseTrades from "./hooks/useSupabaseTrades";
 
 export default function App() {
@@ -25,6 +26,8 @@ export default function App() {
         {loading && <div className="text-center text-xs text-gray-400">Cargando trades...</div>}
         <StatsCards trades={trades} />
         <TradesTable trades={trades} deleteTrade={deleteTrade} updateTrade={updateTrade} />
+        {/* Gráficos de trades */}
+        <TradesCharts trades={trades} />
       </main>
       <TradeForm
         open={showForm}
