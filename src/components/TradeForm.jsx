@@ -1,12 +1,6 @@
 import React, { useState } from "react";
 
-const PAIRS = [
-  "BTC/USDT",
-  "ETH/USDT",
-  "XRP/USDT",
-  "SOL/USDT",
-  "FIL/USDT"
-];
+// El input de par será dinámico, no usamos PAIRS hardcodeados
 const TYPES = ["Spot", "Futuros"];
 const POSITIONS = ["Long", "Short"];
 const STRATEGIES = ["Scalping", "Swing", "DCA", "Breakout"];
@@ -30,6 +24,39 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
     }
   );
   const [error, setError] = useState("");
+  const [pairs, setPairs] = useState([]);
+  const [filteredPairs, setFilteredPairs] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  React.useEffect(() => {
+    if (!open) return;
+    let active = true;
+    fetch("https://api.binance.com/api/v3/exchangeInfo")
+      .then(res => res.json())
+      .then(data => {
+        if (!active) return;
+        const usdtPairs = data.symbols
+          .filter(s => s.symbol.endsWith("USDT"))
+          .map(s => s.symbol.replace("USDT", "/USDT"));
+        setPairs(usdtPairs);
+        setFilteredPairs(usdtPairs);
+      })
+      .catch(() => {
+        setPairs([]);
+        setFilteredPairs([]);
+      });
+    return () => { active = false; };
+  }, [open]);
+
+  React.useEffect(() => {
+    if (!form.pair) {
+      setFilteredPairs(pairs);
+      return;
+    }
+    setFilteredPairs(
+      pairs.filter(p => p.toUpperCase().includes(form.pair.toUpperCase()))
+    );
+  }, [form.pair, pairs]);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -77,11 +104,38 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
             <label className="block text-xs mb-1">Fecha cierre</label>
             <input type="date" name="closeDate" value={form.closeDate} onChange={handleChange} className="input-dark" />
           </div>
-          <div>
+          <div className="relative">
             <label className="block text-xs mb-1">Par*</label>
-            <select name="pair" value={form.pair} onChange={handleChange} className="input-dark">
-              {PAIRS.map(p => <option key={p}>{p}</option>)}
-            </select>
+            <input
+              type="text"
+              name="pair"
+              autoComplete="off"
+              value={form.pair}
+              onChange={e => {
+                handleChange({ target: { name: 'pair', value: e.target.value.toUpperCase().replace(/[^A-Z0-9/]/g, '') } });
+                setShowSuggestions(true);
+              }}
+              className="input-dark"
+              placeholder="BTC/USDT"
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 120)}
+            />
+            {showSuggestions && filteredPairs.length > 0 && (
+              <ul className="absolute z-30 left-0 w-full bg-card border border-slate-700 max-h-40 overflow-auto rounded shadow-lg mt-1 text-xs">
+                {filteredPairs.slice(0, 30).map(p => (
+                  <li
+                    key={p}
+                    className={`px-3 py-2 cursor-pointer hover:bg-slate-700 ${form.pair === p ? 'bg-slate-800 text-white' : 'text-slate-200'}`}
+                    onMouseDown={() => {
+                      setForm(f => ({ ...f, pair: p }));
+                      setShowSuggestions(false);
+                    }}
+                  >
+                    {p}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
           <div>
             <label className="block text-xs mb-1">Tipo*</label>
