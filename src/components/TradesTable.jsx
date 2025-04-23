@@ -19,7 +19,7 @@ function calcularResultado(trade, exit) {
   };
 }
 
-export default function TradesTable({ trades, setTrades }) {
+export default function TradesTable({ trades, deleteTrade, updateTrade }) {
   const [modal, setModal] = useState({ open: false, idx: null, value: "" });
 
   function handleCloseTrade(idx) {
@@ -36,15 +36,15 @@ export default function TradesTable({ trades, setTrades }) {
     const trade = trades[idx];
     const { result, resultPct } = calcularResultado(trade, exit);
     const days = trade.openDate ? Math.max(1, Math.ceil((new Date(today) - new Date(trade.openDate)) / (1000 * 60 * 60 * 24))) : 1;
+    // Eliminar result y resultPct porque la tabla no los tiene
     const updated = {
       ...trade,
       exit,
-      closeDate: today,
-      result,
-      resultPct,
-      days
+      closeDate: today
     };
-    setTrades(trades.map((t, i) => (i === idx ? updated : t)));
+    delete updated.result;
+    delete updated.resultPct;
+    updateTrade(trade.id, updated);
     setModal({ open: false, idx: null, value: "" });
   }
   function handleModalCancel() {
@@ -90,20 +90,52 @@ export default function TradesTable({ trades, setTrades }) {
                 <td className="px-2 py-1">{trade.exit || <span className="text-gray-400">-</span>}</td>
                 <td className="px-2 py-1">{trade.expectedExit}</td>
                 <td className="px-2 py-1">{trade.amount}</td>
-                <td className={`px-2 py-1 font-bold ${parseFloat(trade.result) > 0 ? 'text-profit' : parseFloat(trade.result) < 0 ? 'text-loss' : ''}`}>{trade.result}</td>
-                <td className={`px-2 py-1 ${parseFloat(trade.resultPct) > 0 ? 'text-profit' : parseFloat(trade.resultPct) < 0 ? 'text-loss' : ''}`}>{trade.resultPct}%</td>
-                <td className="px-2 py-1">{trade.days || '-'}</td>
+                {/* Calcula resultado, % y días solo si el trade está cerrado */}
+                {trade.exit && trade.closeDate ? (
+                  <>
+                    {(() => {
+                      const { result, resultPct } = calcularResultado(trade, trade.exit);
+                      // Días entre openDate y closeDate
+                      let days = '-';
+                      if (trade.openDate && trade.closeDate) {
+                        const d1 = new Date(trade.openDate);
+                        const d2 = new Date(trade.closeDate);
+                        days = Math.max(1, Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)));
+                      }
+                      return <>
+                        <td className={`px-2 py-1 font-bold ${parseFloat(result) > 0 ? 'text-profit' : parseFloat(result) < 0 ? 'text-loss' : ''}`}>{result}</td>
+                        <td className={`px-2 py-1 ${parseFloat(resultPct) > 0 ? 'text-profit' : parseFloat(resultPct) < 0 ? 'text-loss' : ''}`}>{resultPct}%</td>
+                        <td className="px-2 py-1">{days}</td>
+                      </>;
+                    })()}
+                  </>
+                ) : (
+                  <>
+                    <td className="px-2 py-1">-</td>
+                    <td className="px-2 py-1">-</td>
+                    <td className="px-2 py-1">-</td>
+                  </>
+                )}
                 <td className="px-2 py-1">{trade.strategy}</td>
                 <td className="px-2 py-1">{trade.notes}</td>
                 <td className="px-2 py-1">
-                  {!trade.exit && !trade.closeDate && (
+                  <div className="flex gap-2 justify-end">
+                    {!trade.exit && !trade.closeDate && (
+                      <button
+                        className="text-xs text-blue-400 hover:underline mr-2"
+                        onClick={() => handleCloseTrade(idx)}
+                      >
+                        Cerrar
+                      </button>
+                    )}
                     <button
-                      className="px-3 py-1 bg-profit/80 hover:bg-profit text-white rounded text-xs font-semibold shadow"
-                      onClick={() => handleCloseTrade(idx)}
+                      className="text-xs text-red-400 hover:text-red-600"
+                      title="Borrar trade"
+                      onClick={() => deleteTrade(trade.id)}
                     >
-                      Cerrar
+                      🗑️
                     </button>
-                  )}
+                  </div>
                 </td>
               </tr>
             ))

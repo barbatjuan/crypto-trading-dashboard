@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { toSnake } from '../utils/caseMap';
 // El input de par será dinámico, no usamos PAIRS hardcodeados
 const TYPES = ["Spot", "Futuros"];
 const POSITIONS = ["Long", "Short"];
@@ -27,6 +27,7 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
   const [pairs, setPairs] = useState([]);
   const [filteredPairs, setFilteredPairs] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [entrySuggestion, setEntrySuggestion] = useState("");
 
   React.useEffect(() => {
     if (!open) return;
@@ -47,6 +48,22 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
       });
     return () => { active = false; };
   }, [open]);
+
+  // Sugerir precio de entrada si el par es de Binance
+  React.useEffect(() => {
+    if (!form.pair || !pairs.includes(form.pair)) {
+      setEntrySuggestion("");
+      return;
+    }
+    const symbol = form.pair.replace("/", "");
+    fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.price) setEntrySuggestion(Number(data.price).toFixed(4));
+        else setEntrySuggestion("");
+      })
+      .catch(() => setEntrySuggestion(""));
+  }, [form.pair, pairs]);
 
   React.useEffect(() => {
     if (!form.pair) {
@@ -71,7 +88,11 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
       return;
     }
     setError("");
-    onSave({ ...form, id: form.id || Date.now(), result: "", resultPct: "" });
+    // No enviar result ni resultPct (la tabla no tiene esas columnas)
+    const { result, resultPct, ...formToSend } = form;
+    // Si closeDate es "", mándalo como null
+    if (formToSend.closeDate === "") formToSend.closeDate = null;
+    onSave(formToSend);
     onClose();
     setForm(initial || {
       openDate: "",
@@ -159,7 +180,29 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-xs mb-1">Precio entrada*</label>
-            <input type="number" step="any" name="entry" value={form.entry} onChange={handleChange} className="input-dark" required />
+            <div className="flex gap-2 items-center">
+              <input
+                type="number"
+                step="any"
+                name="entry"
+                value={form.entry}
+                onChange={handleChange}
+                className="input-dark flex-1"
+                required
+                placeholder={entrySuggestion ? `Sugerido: ${entrySuggestion}` : ''}
+              />
+              {entrySuggestion && (
+                <button
+                  type="button"
+                  className="text-xs px-2 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white shadow"
+                  title="Usar precio actual"
+                  onClick={() => setForm(f => ({ ...f, entry: entrySuggestion }))}
+                  tabIndex={-1}
+                >
+                  Usar
+                </button>
+              )}
+            </div>
           </div>
           <div>
             <label className="block text-xs mb-1">Precio esperado</label>

@@ -8,13 +8,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
     "clsx": "^2.0.0",
+    "cross-fetch": "^3.1.5",
     "lightweight-charts": "^4.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.10.1",
-    "recharts": "^2.7.2",
-    "cross-fetch": "^3.1.5"
+    "recharts": "^2.7.2"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",
