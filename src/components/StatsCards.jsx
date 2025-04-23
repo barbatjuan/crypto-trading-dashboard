@@ -73,7 +73,7 @@ export default function StatsCards({ trades }) {
   }, 0) / closed.length).toFixed(1) : '-';
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 grid-rows-2 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mt-[160px] sm:mt-8 md:mt-0">
       {/* Fila 1 */}
       <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#9ece6a] transition-all duration-150" title="Cantidad total de operaciones registradas">
         <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Trades Totales</span>

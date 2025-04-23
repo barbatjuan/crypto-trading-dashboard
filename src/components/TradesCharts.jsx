@@ -66,6 +66,14 @@ const COLORS = [
 ];
 
 export default function TradesCharts({ trades }) {
+  // Responsive: detecta si es móvil
+  const [isMobile, setIsMobile] = React.useState(false);
+  React.useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
   const pnlSeries = getPnLSeries(trades);
   const pnlByPair = getPnLByPair(trades);
 
@@ -109,8 +117,8 @@ export default function TradesCharts({ trades }) {
       </div>
       <div className="bg-card rounded-xl p-4 shadow border border-slate-800">
         <h3 className="text-sm font-bold mb-2 text-gray-300">PnL por Par (Proporción)</h3>
-        <div className="flex flex-row items-start gap-4">
-          <div className="flex-1 min-w-0">
+        {isMobile ? (
+          <>
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
                 <Pie
@@ -119,7 +127,7 @@ export default function TradesCharts({ trades }) {
                   nameKey="pair"
                   cx="50%"
                   cy="50%"
-                  outerRadius={110}
+                  outerRadius={90}
                   isAnimationActive={true}
                   labelLine={{ stroke: "#23272f", strokeWidth: 2 }}
                 >
@@ -153,25 +161,89 @@ export default function TradesCharts({ trades }) {
 />
               </PieChart>
             </ResponsiveContainer>
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              {pnlByPair.map((entry, idx) => (
+                <div
+                  key={entry.pair}
+                  className="flex flex-col items-center justify-center rounded-lg px-2 py-1 min-w-0 w-full"
+                  style={{
+                    background: 'rgba(30,102,245,0.07)',
+                    borderLeft: `4px solid ${COLORS[idx % COLORS.length]}`,
+                    fontSize: '0.82rem',
+                    lineHeight: 1.1,
+                  }}
+                >
+                  <span className="font-mono text-xs text-gray-200 truncate w-full overflow-hidden text-ellipsis" style={{ color: COLORS[idx % COLORS.length], fontWeight: 700 }}>{entry.pair}</span>
+                  <span className="font-mono text-xs text-gray-300 truncate w-full overflow-hidden text-ellipsis">{entry.pnl >= 0 ? '+' : ''}{entry.pnl.toFixed(2)} USDT</span>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-row items-start gap-4">
+            <div className="flex-1 min-w-0">
+              <ResponsiveContainer width="100%" height={260}>
+                <PieChart>
+                  <Pie
+                    data={pnlByPair}
+                    dataKey="pnl"
+                    nameKey="pair"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={110}
+                    isAnimationActive={true}
+                    labelLine={{ stroke: "#23272f", strokeWidth: 2 }}
+                  >
+                    {pnlByPair.map((entry, idx) => (
+                      <Cell
+                        key={`cell-${idx}`}
+                        fill={COLORS[idx % COLORS.length]}
+                        stroke="none"
+                        style={{
+                          filter: 'drop-shadow(rgba(30, 41, 59, 0.08) 0px 2px 8px)',
+                          transition: 'transform 0.15s',
+                          cursor: 'pointer',
+                        }}
+                        onMouseOver={e => {
+                          if (e && e.target) e.target.setAttribute('transform', 'scale(1.05)');
+                        }}
+                        onMouseOut={e => {
+                          if (e && e.target) e.target.setAttribute('transform', 'scale(1)');
+                        }}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+    contentStyle={{ background: '#181f2a', border: 'none', color: '#f1f5f9' }}
+    formatter={(value, name) => {
+      if (name === 'pnl') {
+        return [`${parseFloat(value).toFixed(2)}`, 'PnL'];
+      }
+      return [value, name];
+    }}
+  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex flex-col gap-2 min-w-[120px]">
+              {pnlByPair.map((entry, idx) => (
+                <div
+                  key={entry.pair}
+                  className="flex flex-col items-center justify-center rounded-lg px-2 py-1 min-w-0 w-full"
+                  style={{
+                    background: 'rgba(30,102,245,0.07)',
+                    borderLeft: `4px solid ${COLORS[idx % COLORS.length]}`,
+                    fontSize: '0.82rem',
+                    lineHeight: 1.1,
+                  }}
+                >
+                  <span className="font-mono text-xs text-gray-200 truncate w-full overflow-hidden text-ellipsis" style={{ color: COLORS[idx % COLORS.length], fontWeight: 700 }}>{entry.pair}</span>
+                  <span className="font-mono text-xs text-gray-300 truncate w-full overflow-hidden text-ellipsis">{entry.pnl >= 0 ? '+' : ''}{entry.pnl.toFixed(2)} USDT</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="flex flex-col gap-2 min-w-[120px]">
-            {pnlByPair.map((entry, idx) => (
-              <div
-                key={entry.pair}
-                className="flex flex-col items-center justify-center rounded-lg px-2 py-1 min-w-0 w-full"
-                style={{
-                  background: 'rgba(30,102,245,0.07)',
-                  borderLeft: `4px solid ${COLORS[idx % COLORS.length]}`,
-                  fontSize: '0.82rem',
-                  lineHeight: 1.1,
-                }}
-              >
-                <span className="font-mono text-xs text-gray-200 truncate w-full overflow-hidden text-ellipsis" style={{ color: COLORS[idx % COLORS.length], fontWeight: 700 }}>{entry.pair}</span>
-                <span className="font-mono text-xs text-gray-300 truncate w-full overflow-hidden text-ellipsis">{entry.pnl >= 0 ? '+' : ''}{entry.pnl.toFixed(2)} USDT</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

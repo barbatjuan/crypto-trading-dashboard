@@ -19,6 +19,14 @@ const intervalLabels = {
 };
 
 export default function BtcCandlesChart() {
+  // Responsive: detecta si es móvil
+  const [isMobile, setIsMobile] = React.useState(false);
+  React.useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
   const [intervalState, setIntervalState] = React.useState('4h');
   const [pair, setPair] = useState('BTC/USDT');
   const [pairs, setPairs] = useState([
@@ -111,10 +119,11 @@ export default function BtcCandlesChart() {
         chartContainerRef.current.innerHTML = "";
         chart = LightweightCharts.createChart(chartContainerRef.current, {
           width: chartContainerRef.current.clientWidth,
-          height: 400,
+          height: isMobile ? 250 : 400,
           layout: {
             background: { color: "#0f172a" },
             textColor: "#e5e7eb",
+            fontSize: isMobile ? 10 : 14,
           },
           grid: {
             vertLines: { color: "#1e293b" },
@@ -205,8 +214,8 @@ export default function BtcCandlesChart() {
   return (
     <div className="w-full my-8 relative">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-lg font-semibold text-gray-200">{pair} - {intervalLabel}</h2>
-        <div className="flex items-center gap-6">
+        <h2 className={`font-semibold text-gray-200 ${isMobile ? 'text-base' : 'text-lg'} hidden sm:block`}>{pair} - {intervalLabel}</h2>
+        <div className={`flex items-center gap-6 ${isMobile ? 'text-xs' : ''}`}>
           {/* Input de par con autocompletado robusto */}
           <div className="relative">
             <input
@@ -253,7 +262,7 @@ export default function BtcCandlesChart() {
             ))}
           </div>
           {/* Leyenda SMA */}
-          <div className="flex gap-4 text-xs select-none">
+          <div className="hidden sm:flex gap-4 text-xs select-none">
             <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full" style={{background:'rgba(253,186,116,0.8)'}}></span><span className="text-gray-300">SMA 20</span></span>
             <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full" style={{background:'rgba(125,211,252,0.8)'}}></span><span className="text-gray-300">SMA 50</span></span>
           </div>
@@ -262,7 +271,7 @@ export default function BtcCandlesChart() {
       <div
         ref={chartContainerRef}
         className="w-full rounded-lg shadow bg-card"
-        style={{ height: 400, minHeight: 250 }}
+        style={{ height: isMobile ? 220 : 400, minHeight: isMobile ? 120 : 250 }}
       />
 
       {/* Mensaje de error bajo el input si el par es inválido o no hay datos */}

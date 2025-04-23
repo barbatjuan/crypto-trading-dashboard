@@ -14,6 +14,17 @@ export default function LivePrices() {
   const prices = useBinancePrices(PAIRS.map(p => p.symbol));
   const allMissing = PAIRS.every(pair => !prices[pair.symbol]);
 
+  // Detecta si es móvil (breakpoint < 640px)
+  const [isMobile, setIsMobile] = React.useState(false);
+  React.useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  const pairsToShow = isMobile ? PAIRS.slice(0, 4) : PAIRS;
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 w-full mb-6">
       {allMissing ? (
@@ -21,7 +32,7 @@ export default function LivePrices() {
           Sin conexión a Binance
         </div>
       ) : (
-        PAIRS.map(pair => (
+        pairsToShow.map(pair => (
           <div
             key={pair.symbol}
             className="bg-card rounded-lg px-6 py-3 flex flex-col items-center shadow w-full"
