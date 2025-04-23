@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 export default function useBinancePrices(symbols) {
   const [prices, setPrices] = useState({});
   const intervalRef = useRef(null);
+  const prevPrices = useRef({});
 
   useEffect(() => {
     if (!symbols || symbols.length === 0) return;
@@ -21,7 +22,21 @@ export default function useBinancePrices(symbols) {
             }
           })
         );
-        if (!cancelled) setPrices(newPrices);
+        if (!cancelled) {
+          // Añade los precios previos
+          const pricesWithPrev = { ...newPrices };
+          Object.keys(newPrices).forEach(symbol => {
+            if (prices[symbol] !== undefined) {
+              pricesWithPrev[symbol + '_prev'] = prices[symbol];
+            } else if (prevPrices.current[symbol] !== undefined) {
+              pricesWithPrev[symbol + '_prev'] = prevPrices.current[symbol];
+            } else {
+              pricesWithPrev[symbol + '_prev'] = undefined;
+            }
+          });
+          prevPrices.current = newPrices;
+          setPrices(pricesWithPrev);
+        }
       } catch (e) {
         // Silencia errores de red
       }
