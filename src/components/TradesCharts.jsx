@@ -3,6 +3,7 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -71,14 +72,38 @@ export default function TradesCharts({ trades }) {
   return (
     <div className="grid md:grid-cols-2 gap-6 mt-8">
       <div className="bg-card rounded-xl p-4 shadow border border-slate-800">
-        <h3 className="text-sm font-bold mb-2 text-gray-300">Evolución PnL Acumulado</h3>
+        <h3 className="text-sm font-bold mb-2 text-[#7aa2f7]">Evolución PnL Acumulado</h3>
         <ResponsiveContainer width="100%" height={260}>
           <LineChart data={pnlSeries}>
             <CartesianGrid strokeDasharray="3 3" stroke="#23262f" />
             <XAxis dataKey="date" tick={{ fill: '#94a3b8', fontSize: 12 }} />
             <YAxis tick={{ fill: '#94a3b8', fontSize: 12 }} domain={[dataMin => Math.min(0, dataMin), 'auto']} />
-            <Tooltip contentStyle={{ background: '#181f2a', border: 'none', color: '#f1f5f9' }} />
-            <Line type="monotone" dataKey="pnl" stroke="#22c55e" strokeWidth={2} dot={false} />
+            <Tooltip 
+  contentStyle={{ background: '#181f2a', border: 'none', color: '#f1f5f9' }}
+  formatter={(value, name) => {
+    if (name === 'pnl') {
+      return [`${parseFloat(value).toFixed(2)}`, 'PnL'];
+    }
+    return [value, name];
+  }}
+/>
+            <defs>
+              <linearGradient id="pnlAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#9ece6a" stopOpacity="0.8" />
+                <stop offset="55%" stopColor="#9ece6a" stopOpacity="0.18" />
+                <stop offset="100%" stopColor="#9ece6a" stopOpacity="0.03" />
+              </linearGradient>
+            </defs>
+            <Area
+              type="monotone"
+              dataKey="pnl"
+              stroke="none"
+              fill="url(#pnlAreaGradient)"
+              isAnimationActive={true}
+              fillOpacity={1}
+              baseLine={0}
+            />
+            <Line type="monotone" dataKey="pnl" stroke="#9ece6a" strokeWidth={2} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -117,7 +142,15 @@ export default function TradesCharts({ trades }) {
                     />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ background: '#181f2a', border: 'none', color: '#f1f5f9' }} />
+                <Tooltip 
+  contentStyle={{ background: '#181f2a', border: 'none', color: '#f1f5f9' }}
+  formatter={(value, name) => {
+    if (name === 'pnl') {
+      return [`${parseFloat(value).toFixed(2)}`, 'PnL'];
+    }
+    return [value, name];
+  }}
+/>
               </PieChart>
             </ResponsiveContainer>
           </div>

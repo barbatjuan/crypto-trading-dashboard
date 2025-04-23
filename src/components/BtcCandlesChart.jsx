@@ -132,12 +132,12 @@ export default function BtcCandlesChart() {
         });
         chartInstanceRef.current = chart;
         candleSeries = chart.addCandlestickSeries({
-          upColor: "#22c55e",
-          downColor: "#ef4444",
-          borderUpColor: "#22c55e",
-          borderDownColor: "#ef4444",
-          wickUpColor: "#22c55e",
-          wickDownColor: "#ef4444",
+          upColor: "#9ece6a", // Tokyo Night green
+          downColor: "#f7768e", // Tokyo Night red
+          borderUpColor: "#9ece6a",
+          borderDownColor: "#f7768e",
+          wickUpColor: "#9ece6a",
+          wickDownColor: "#f7768e",
         });
         candleSeries.setData(candles);
 

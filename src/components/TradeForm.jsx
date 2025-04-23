@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { FaRegCalendar } from "react-icons/fa";
 import { toSnake } from '../utils/caseMap';
 // El input de par será dinámico, no usamos PAIRS hardcodeados
 const TYPES = ["Spot", "Futuros"];
@@ -128,11 +129,21 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-xs mb-1">Fecha apertura*</label>
-            <input type="date" name="openDate" value={form.openDate} onChange={handleChange} className="input-dark" required />
+            <div className="relative">
+              <input type="date" name="openDate" value={form.openDate} onChange={handleChange} className="input-dark pr-8" required />
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                <FaRegCalendar size={18} color="#7aa2f7" />
+              </span>
+            </div>
           </div>
           <div>
             <label className="block text-xs mb-1">Fecha cierre</label>
-            <input type="date" name="closeDate" value={form.closeDate} onChange={handleChange} className="input-dark" />
+            <div className="relative">
+              <input type="date" name="closeDate" value={form.closeDate} onChange={handleChange} className="input-dark pr-8" />
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                <FaRegCalendar size={18} color="#e0af68" />
+              </span>
+            </div>
           </div>
           <div className="relative">
             <label className="block text-xs mb-1">Par*</label>
@@ -203,7 +214,7 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
               {entrySuggestion && (
                 <button
                   type="button"
-                  className="text-xs px-2 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white shadow"
+                  className="text-xs px-2 py-1 rounded bg-[#9ece6a] hover:bg-[#7aa64c] text-surface font-semibold shadow"
                   title="Usar precio actual"
                   onClick={() => setForm(f => ({ ...f, entry: entrySuggestion }))}
                   tabIndex={-1}
@@ -233,7 +244,7 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
         {error && <div className="text-loss text-sm mb-2">{error}</div>}
         <div className="flex justify-end gap-2 mt-2">
           <button type="button" onClick={onClose} className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600">Cancelar</button>
-          <button type="submit" className="px-4 py-2 rounded bg-profit hover:bg-green-600 text-white font-semibold">Guardar</button>
+          <button type="submit" className="px-4 py-2 rounded bg-[#9ece6a] hover:bg-[#7aa64c] text-surface font-semibold">Guardar</button>
         </div>
       </form>
       <style>{`

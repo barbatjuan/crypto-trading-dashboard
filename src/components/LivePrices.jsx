@@ -17,7 +17,7 @@ export default function LivePrices() {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 w-full mb-6">
       {allMissing ? (
-        <div className="col-span-full text-loss font-semibold text-base bg-loss/10 px-4 py-2 rounded-lg animate-pulse text-center">
+        <div className="col-span-full text-[#f7768e] font-semibold text-base bg-loss/10 px-4 py-2 rounded-lg animate-pulse text-center">
           Sin conexión a Binance
         </div>
       ) : (
@@ -32,9 +32,9 @@ export default function LivePrices() {
               <span className="inline-flex items-center min-w-[20px] justify-center">
                 {prices[pair.symbol] && prices[pair.symbol + '_prev'] !== undefined && (
                   prices[pair.symbol] > prices[pair.symbol + '_prev'] ? (
-                    <FaArrowUp className="text-profit" title="Sube" />
+                    <FaArrowUp className="text-[#9ece6a]" title="Sube" />
                   ) : prices[pair.symbol] < prices[pair.symbol + '_prev'] ? (
-                    <FaArrowDown className="text-loss" title="Baja" />
+                    <FaArrowDown className="text-[#f7768e]" title="Baja" />
                   ) : null
                 )}
               </span>

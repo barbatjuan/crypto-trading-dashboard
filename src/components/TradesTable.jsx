@@ -56,21 +56,21 @@ export default function TradesTable({ trades, deleteTrade, updateTrade }) {
       <table className="min-w-full text-sm">
         <thead>
           <tr className="border-b border-slate-700">
-            <th className="px-2 py-1">Fecha apertura</th>
-            <th className="px-2 py-1">Fecha cierre</th>
-            <th className="px-2 py-1">Par</th>
-            <th className="px-2 py-1">Tipo</th>
-            <th className="px-2 py-1">Posición</th>
-            <th className="px-2 py-1">Entrada</th>
-            <th className="px-2 py-1">Salida</th>
-            <th className="px-2 py-1">Esperado</th>
-            <th className="px-2 py-1">Cantidad</th>
-            <th className="px-2 py-1">Resultado</th>
-            <th className="px-2 py-1">% Resultado</th>
-            <th className="px-2 py-1">Días</th>
-            <th className="px-2 py-1">Estrategia</th>
-            <th className="px-2 py-1">Notas</th>
-            <th className="px-2 py-1">Acciones</th>
+            <th className="px-2 py-1 text-[#7aa2f7]">Fecha apertura</th>
+            <th className="px-2 py-1 text-[#7aa2f7]">Fecha cierre</th>
+            <th className="px-2 py-1 text-[#7aa2f7]">Par</th>
+            <th className="px-2 py-1 text-[#7aa2f7]">Tipo</th>
+            <th className="px-2 py-1 text-[#7aa2f7]">Posición</th>
+            <th className="px-2 py-1 text-[#7aa2f7]">Entrada</th>
+            <th className="px-2 py-1 text-[#7aa2f7]">Salida</th>
+            <th className="px-2 py-1 text-[#7aa2f7]">Esperado</th>
+            <th className="px-2 py-1 text-[#7aa2f7]">USDT</th>
+            <th className="px-2 py-1 text-[#7aa2f7]">PNL</th>
+            <th className="px-2 py-1 text-[#7aa2f7]">% Resultado</th>
+            <th className="px-2 py-1 text-[#7aa2f7]">Días</th>
+            <th className="px-2 py-1 text-[#7aa2f7]">Estrategia</th>
+            <th className="px-2 py-1 text-[#7aa2f7]">Notas</th>
+            <th className="px-2 py-1 text-[#7aa2f7]">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -103,8 +103,8 @@ export default function TradesTable({ trades, deleteTrade, updateTrade }) {
                       days = Math.max(1, Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)));
                     }
                     return <>
-                      <td className={`px-2 py-1 font-bold ${parseFloat(result) > 0 ? 'text-profit' : parseFloat(result) < 0 ? 'text-loss' : ''}`}>{result}</td>
-                      <td className={`px-2 py-1 ${parseFloat(resultPct) > 0 ? 'text-profit' : parseFloat(resultPct) < 0 ? 'text-loss' : ''}`}>{resultPct}%</td>
+                      <td className={`px-2 py-1 font-bold ${parseFloat(result) > 0 ? 'text-[#9ece6a]' : parseFloat(result) < 0 ? 'text-[#f7768e]' : ''}`}>{result}</td>
+                      <td className={`px-2 py-1 ${parseFloat(resultPct) > 0 ? 'text-[#9ece6a]' : parseFloat(resultPct) < 0 ? 'text-[#f7768e]' : ''}`}>{resultPct}%</td>
                       <td className="px-2 py-1">{days}</td>
                     </>;
                   })()

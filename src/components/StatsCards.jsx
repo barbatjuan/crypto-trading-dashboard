@@ -75,46 +75,46 @@ export default function StatsCards({ trades }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 grid-rows-2 gap-3">
       {/* Fila 1 */}
-      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-green-500 transition-all duration-150" title="Cantidad total de operaciones registradas">
+      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#9ece6a] transition-all duration-150" title="Cantidad total de operaciones registradas">
         <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Trades Totales</span>
-        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight text-slate-50"><FaChartBar className="inline text-slate-400 text-base" />{totalTrades}</span>
+        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight text-slate-50"><FaChartBar className="inline text-[#7aa2f7] text-base" />{totalTrades}</span>
       </div>
-      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-green-500 transition-all duration-150" title="Suma de todas las ganancias de trades cerrados">
+      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#9ece6a] transition-all duration-150" title="Suma de todas las ganancias de trades cerrados">
         <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Ganancias Totales</span>
-        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight text-profit"><FaArrowUp className="inline text-profit text-base" />${totalProfit.toFixed(2)}</span>
+        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight text-[#9ece6a]"><FaArrowUp className="inline text-[#9ece6a] text-base" />${totalProfit.toFixed(2)}</span>
       </div>
-      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-green-500 transition-all duration-150" title="Suma de todas las pérdidas de trades cerrados">
+      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#9ece6a] transition-all duration-150" title="Suma de todas las pérdidas de trades cerrados">
         <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Pérdidas Totales</span>
-        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight text-loss"><FaArrowDown className="inline text-loss text-base" />${totalLoss.toFixed(2)}</span>
+        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight text-[#f7768e]"><FaArrowDown className="inline text-[#f7768e] text-base" />${totalLoss.toFixed(2)}</span>
       </div>
-      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-green-500 transition-all duration-150" title="Resultado neto (ganancias - pérdidas) de todos los trades cerrados">
+      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#9ece6a] transition-all duration-150" title="Resultado neto (ganancias - pérdidas) de todos los trades cerrados">
         <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">PnL Neto</span>
-        <span className={`flex items-center gap-1 text-lg font-semibold tracking-tight ${netPnl >= 0 ? 'text-profit' : 'text-loss'}`}><FaWallet className="inline text-slate-400 text-base" />{netPnl >= 0 ? '+' : ''}${netPnl.toFixed(2)}</span>
+        <span className={`flex items-center gap-1 text-lg font-semibold tracking-tight ${netPnl >= 0 ? 'text-[#9ece6a]' : 'text-[#f7768e]'}`}><FaWallet className="inline text-[#7aa2f7] text-base" />{netPnl >= 0 ? '+' : ''}${netPnl.toFixed(2)}</span>
       </div>
-      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-green-500 transition-all duration-150" title="Par con mayor ganancia acumulada">
+      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#9ece6a] transition-all duration-150" title="Par con mayor ganancia acumulada">
         <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Mejor Par</span>
-        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight"><FaMedal className="inline text-slate-400 text-base" />{bestPair !== '-' ? bestPair : '-'}</span>
+        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight"><FaMedal className="inline text-[#7aa2f7] text-base" />{bestPair !== '-' ? bestPair : '-'}</span>
       </div>
       {/* Fila 2 */}
-      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-green-500 transition-all duration-150" title="Porcentaje de crecimiento de la cartera respecto al capital inicial">
+      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#9ece6a] transition-all duration-150" title="Porcentaje de crecimiento de la cartera respecto al capital inicial">
         <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">% Crecimiento Cartera</span>
-        <span className={`flex items-center gap-1 text-lg font-semibold tracking-tight ${growthPct >= 0 ? 'text-profit' : 'text-loss'}`}><FaPercent className="inline text-slate-400 text-base" />{growthPct >= 0 ? '+' : ''}{growthPct.toFixed(2)}%</span>
+        <span className={`flex items-center gap-1 text-lg font-semibold tracking-tight ${growthPct >= 0 ? 'text-[#9ece6a]' : 'text-[#f7768e]'}`}><FaPercent className="inline text-[#7aa2f7] text-base" />{growthPct >= 0 ? '+' : ''}{growthPct.toFixed(2)}%</span>
       </div>
-      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-green-500 transition-all duration-150" title="Porcentaje de trades cerrados con resultado positivo">
+      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#9ece6a] transition-all duration-150" title="Porcentaje de trades cerrados con resultado positivo">
         <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Winrate</span>
-        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight"><FaStar className="inline text-slate-400 text-base" />{winrate.toFixed(1)}%</span>
+        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight"><FaStar className="inline text-[#7aa2f7] text-base" />{winrate.toFixed(1)}%</span>
       </div>
-      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-green-500 transition-all duration-150" title="Trade con mayor ganancia individual">
+      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#9ece6a] transition-all duration-150" title="Trade con mayor ganancia individual">
         <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Mejor Trade</span>
-        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight text-profit"><FaRegThumbsUp className="inline text-profit text-base" />{bestTradeVal !== null ? `$${bestTradeVal.toFixed(2)}` : '-'}</span>
+        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight text-[#9ece6a]"><FaRegThumbsUp className="inline text-[#9ece6a] text-base" />{bestTradeVal !== null ? `$${bestTradeVal.toFixed(2)}` : '-'}</span>
       </div>
-      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-green-500 transition-all duration-150" title="Trade con mayor pérdida individual">
+      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#9ece6a] transition-all duration-150" title="Trade con mayor pérdida individual">
         <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Peor Trade</span>
-        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight text-loss"><FaRegThumbsDown className="inline text-loss text-base" />{worstTradeVal !== null ? `$${worstTradeVal.toFixed(2)}` : '-'}</span>
+        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight text-[#f7768e]"><FaRegThumbsDown className="inline text-[#f7768e] text-base" />{worstTradeVal !== null ? `$${worstTradeVal.toFixed(2)}` : '-'}</span>
       </div>
-      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-green-500 transition-all duration-150" title="Promedio de días entre apertura y cierre de los trades cerrados">
+      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#9ece6a] transition-all duration-150" title="Promedio de días entre apertura y cierre de los trades cerrados">
         <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Promedio Días</span>
-        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight"><FaClock className="inline text-slate-400 text-base" />{avgDays}</span>
+        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight"><FaClock className="inline text-[#7aa2f7] text-base" />{avgDays}</span>
       </div>
     </div>
   );
