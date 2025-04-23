@@ -1,7 +1,27 @@
 import React, { useEffect, useState, useLayoutEffect, useRef } from "react";
 import * as LightweightCharts from "lightweight-charts";
 
+const intervals = [
+  { label: '1m', value: '1m' },
+  { label: '5m', value: '5m' },
+  { label: '15m', value: '15m' },
+  { label: '1h', value: '1h' },
+  { label: '4h', value: '4h' },
+  { label: '1d', value: '1d' },
+];
+const intervalLabels = {
+  '1m': '1 Minuto',
+  '5m': '5 Minutos',
+  '15m': '15 Minutos',
+  '1h': '1 Hora',
+  '4h': '4 Horas',
+  '1d': '1 Día',
+};
+
 export default function BtcCandlesChart() {
+  const [intervalState, setIntervalState] = React.useState('4h');
+  const intervalLabel = intervalLabels[intervalState] || intervalState;
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const chartContainerRef = useRef();
@@ -19,7 +39,7 @@ export default function BtcCandlesChart() {
       setError(null);
       try {
         const res = await fetch(
-          "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=4h&limit=200"
+          `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${intervalState}&limit=200`
         );
         if (!res.ok) throw new Error("No se pudieron cargar los datos de velas");
         const data = await res.json();
@@ -66,6 +86,39 @@ export default function BtcCandlesChart() {
           wickDownColor: "#ef4444",
         });
         candleSeries.setData(candles);
+
+        // Calcular y dibujar medias móviles
+        function calcSMA(data, period) {
+          const sma = [];
+          for (let i = 0; i < data.length; i++) {
+            if (i < period - 1) {
+              sma.push({ time: data[i].time, value: null });
+            } else {
+              let sum = 0;
+              for (let j = 0; j < period; j++) {
+                sum += data[i - j].close;
+              }
+              sma.push({ time: data[i].time, value: +(sum / period).toFixed(2) });
+            }
+          }
+          return sma;
+        }
+        const sma20 = calcSMA(candles, 20).filter(p => p.value !== null);
+        const sma50 = calcSMA(candles, 50).filter(p => p.value !== null);
+        const sma20Series = chart.addLineSeries({
+          color: 'rgba(253,186,116,0.8)', // naranja pastel (#fdba74)
+          lineWidth: 2,
+          priceLineVisible: false,
+          lastValueVisible: true,
+        });
+        sma20Series.setData(sma20);
+        const sma50Series = chart.addLineSeries({
+          color: 'rgba(125,211,252,0.8)', // celeste pastel (#7dd3fc)
+          lineWidth: 2,
+          priceLineVisible: false,
+          lastValueVisible: true,
+        });
+        sma50Series.setData(sma50);
         setLoading(false);
 
         resizeObserver = new ResizeObserver(() => {
@@ -93,11 +146,33 @@ export default function BtcCandlesChart() {
         clearInterval(intervalId);
       }
     };
-  }, []);
+  }, [intervalState]);
 
   return (
-    <div className="w-full my-8">
-      <h2 className="text-lg font-semibold text-gray-200 mb-2">BTC/USDT - Velas 4H</h2>
+    <div className="w-full my-8 relative">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-lg font-semibold text-gray-200">BTC/USDT - {intervalLabel}</h2>
+        <div className="flex items-center gap-6">
+          {/* Selector de temporalidad */}
+          <div className="flex gap-1 bg-card rounded px-2 py-1 border border-slate-700">
+            {intervals.map((intv) => (
+              <button
+                key={intv.value}
+                onClick={() => setIntervalState(intv.value)}
+                className={`px-2 py-0.5 rounded text-xs font-medium transition-colors duration-100 focus:outline-none ${intervalState === intv.value ? 'bg-slate-700 text-white' : 'text-slate-300 hover:bg-slate-800'}`}
+                style={{letterSpacing: '0.5px'}}
+              >
+                {intv.label}
+              </button>
+            ))}
+          </div>
+          {/* Leyenda SMA */}
+          <div className="flex gap-4 text-xs select-none">
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full" style={{background:'rgba(253,186,116,0.8)'}}></span><span className="text-gray-300">SMA 20</span></span>
+            <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-full" style={{background:'rgba(125,211,252,0.8)'}}></span><span className="text-gray-300">SMA 50</span></span>
+          </div>
+        </div>
+      </div>
       <div
         ref={chartContainerRef}
         className="w-full rounded-lg shadow bg-card"
