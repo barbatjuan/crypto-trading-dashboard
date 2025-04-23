@@ -271,7 +271,7 @@ export default function BtcCandlesChart() {
       <div
         ref={chartContainerRef}
         className="w-full rounded-lg shadow bg-card"
-        style={{ height: isMobile ? 220 : 400, minHeight: isMobile ? 220 : 250 }}
+        style={{ height: isMobile ? 220 : 400, minHeight: isMobile ? 120 : 250, maxHeight: isMobile ? 220 : undefined }}
       />
 
       {/* Mensaje de error bajo el input si el par es inválido o no hay datos */}
