@@ -178,9 +178,7 @@ export default function BtcCandlesChart() {
         className="w-full rounded-lg shadow bg-card"
         style={{ height: 400, minHeight: 250 }}
       />
-      {loading && (
-        <div className="text-center text-gray-400 mt-2 animate-pulse">Cargando gráfico...</div>
-      )}
+
       {error && (
         <div className="text-center text-loss mt-2">{error}</div>
       )}
