@@ -3,7 +3,7 @@ import React from "react";
 export default function DashboardHeader({ onAddTrade, onLogout }) {
   return (
     <header className="sticky top-0 z-30 bg-surface/90 backdrop-blur shadow flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-card">
-      <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-center sm:text-left w-full sm:w-auto flex items-center justify-center sm:justify-start gap-2">
+      <h1 className="text-base sm:text-2xl font-bold tracking-tight text-center sm:text-left w-full sm:w-auto flex items-center justify-center sm:justify-start gap-2">
         {/* Header principal con icono BTC */}
         <span className="inline-block align-middle">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 16 16" fill="#FFC700">
@@ -13,7 +13,7 @@ export default function DashboardHeader({ onAddTrade, onLogout }) {
         Crypto Trading Dashboard
         {onLogout && (
           <button
-            className="ml-auto px-4 py-1 rounded-lg font-semibold text-black bg-[#FFC700] hover:bg-yellow-400 transition text-sm"
+            className="ml-auto px-3 py-1 rounded-lg font-semibold text-black bg-[#FFC700] hover:bg-yellow-400 transition text-xs sm:text-sm"
             onClick={onLogout}
             style={{ marginLeft: 'auto' }}
           >
