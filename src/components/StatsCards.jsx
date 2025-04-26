@@ -1,9 +1,11 @@
 import React from "react";
-import { FaChartBar, FaDollarSign, FaArrowUp, FaArrowDown, FaMedal, FaWallet, FaPercent, FaStar, FaRegThumbsUp, FaRegThumbsDown, FaClock } from "react-icons/fa";
+import { FaChartBar, FaDollarSign, FaArrowUp, FaArrowDown, FaMedal, FaWallet, FaPercent, FaStar, FaRegThumbsUp, FaRegThumbsDown, FaClock, FaHourglassHalf } from "react-icons/fa";
 
 export default function StatsCards({ trades }) {
   // Solo trades cerrados (con exit y closeDate)
   const closed = trades.filter(t => t.exit && t.closeDate);
+  // Solo trades abiertos (sin exit o sin closeDate)
+  const openTrades = trades.filter(t => !t.exit || !t.closeDate);
   // Calcula resultado por trade
   function calcularResultado(trade) {
     const entry = parseFloat(trade.entry);
@@ -48,12 +50,29 @@ export default function StatsCards({ trades }) {
   // Winrate
   const wins = closed.filter(t => calcularResultado(t) > 0).length;
   const winrate = closed.length > 0 ? (wins / closed.length) * 100 : 0;
-  // Mejor trade
+  // Mejor trade (valor absoluto)
   let bestTrade = null;
   let bestTradeVal = null;
   if (closed.length > 0) {
     bestTrade = closed.reduce((a, b) => (calcularResultado(a) > calcularResultado(b) ? a : b));
     bestTradeVal = calcularResultado(bestTrade);
+  }
+  // Mejor trade en porcentaje
+  let bestTradePct = null;
+  let bestTradePctVal = null;
+  if (closed.length > 0) {
+    bestTradePct = closed.reduce((a, b) => {
+      const pctA = a.position === "Short"
+        ? ((parseFloat(a.entry) - parseFloat(a.exit)) / parseFloat(a.entry)) * 100
+        : ((parseFloat(a.exit) - parseFloat(a.entry)) / parseFloat(a.entry)) * 100;
+      const pctB = b.position === "Short"
+        ? ((parseFloat(b.entry) - parseFloat(b.exit)) / parseFloat(b.entry)) * 100
+        : ((parseFloat(b.exit) - parseFloat(b.entry)) / parseFloat(b.entry)) * 100;
+      return pctA > pctB ? a : b;
+    });
+    bestTradePctVal = bestTradePct.position === "Short"
+      ? ((parseFloat(bestTradePct.entry) - parseFloat(bestTradePct.exit)) / parseFloat(bestTradePct.entry)) * 100
+      : ((parseFloat(bestTradePct.exit) - parseFloat(bestTradePct.entry)) / parseFloat(bestTradePct.entry)) * 100;
   }
   // Peor trade
   let worstTrade = null;
@@ -73,11 +92,15 @@ export default function StatsCards({ trades }) {
   }, 0) / closed.length).toFixed(1) : '-';
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mt-[160px] sm:mt-8 md:mt-0">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mt-[160px] sm:mt-8 md:mt-0">
       {/* Fila 1 */}
       <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#9ece6a] transition-all duration-150" title="Cantidad total de operaciones registradas">
         <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Trades Totales</span>
         <span className="flex items-center gap-1 text-lg font-semibold tracking-tight text-slate-50"><FaChartBar className="inline text-[#7aa2f7] text-base" />{totalTrades}</span>
+      </div>
+      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#7aa2f7] transition-all duration-150" title="Cantidad de trades abiertos actualmente">
+        <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Trades Abiertos</span>
+        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight text-white"><FaHourglassHalf className="inline text-[#7aa2f7] text-base" />{openTrades.length}</span>
       </div>
       <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#9ece6a] transition-all duration-150" title="Suma de todas las ganancias de trades cerrados">
         <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Ganancias Totales</span>
@@ -99,6 +122,13 @@ export default function StatsCards({ trades }) {
       <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#9ece6a] transition-all duration-150" title="Porcentaje de crecimiento de la cartera respecto al capital inicial">
         <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">% Crecimiento Cartera</span>
         <span className={`flex items-center gap-1 text-lg font-semibold tracking-tight ${growthPct >= 0 ? 'text-[#9ece6a]' : 'text-[#f7768e]'}`}><FaPercent className="inline text-[#7aa2f7] text-base" />{growthPct >= 0 ? '+' : ''}{growthPct.toFixed(2)}%</span>
+      </div>
+      <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#7aa2f7] transition-all duration-150" title="Mejor trade en porcentaje de ganancia">
+        <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Mejor Trade %</span>
+        <span className="flex items-center gap-1 text-lg font-semibold tracking-tight text-[#7aa2f7]">
+          <FaRegThumbsUp className="inline text-[#7aa2f7] text-base" />
+          {bestTradePctVal !== null ? `${bestTradePctVal >= 0 ? '+' : ''}${bestTradePctVal.toFixed(2)}%` : '-'}
+        </span>
       </div>
       <div className="bg-card rounded-xl px-3 py-4 flex flex-col gap-0.5 items-center shadow border border-slate-800 hover:border-[#9ece6a] transition-all duration-150" title="Porcentaje de trades cerrados con resultado positivo">
         <span className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">Winrate</span>

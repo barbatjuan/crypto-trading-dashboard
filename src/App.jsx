@@ -49,7 +49,12 @@ export default function App() {
         {error && <div className="text-center text-loss font-semibold">{error}</div>}
         {loading && <div className="text-center text-xs text-gray-400">Cargando trades...</div>}
         <StatsCards trades={trades} />
-        <TradesTable trades={trades} deleteTrade={deleteTrade} updateTrade={updateTrade} />
+        {/* Tabla Spot */}
+        <h2 className="mt-8 mb-2 text-lg font-bold text-[#7aa2f7]">Trades Spot</h2>
+        <TradesTable trades={trades.filter(t => t.type === "Spot")} deleteTrade={deleteTrade} updateTrade={updateTrade} />
+        {/* Tabla Futuros */}
+        <h2 className="mt-8 mb-2 text-lg font-bold text-[#e0af68]">Trades Futuros</h2>
+        <TradesTable trades={trades.filter(t => t.type === "Futuros")} deleteTrade={deleteTrade} updateTrade={updateTrade} />
         {/* Gráficos de trades */}
         <TradesCharts trades={trades} />
       </main>

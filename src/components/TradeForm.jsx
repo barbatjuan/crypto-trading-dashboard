@@ -21,7 +21,8 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
       exit: "",
       amount: "",
       strategy: "Scalping",
-      notes: ""
+      notes: "",
+      leverage: "1"
     }
   );
   const [error, setError] = useState("");
@@ -91,6 +92,7 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
     setError("");
     // No enviar result ni resultPct (la tabla no tiene esas columnas)
     const { result, resultPct, ...formToSend } = form;
+    if (formToSend.type !== "Futuros") formToSend.leverage = "1";
     // Si closeDate es "", mándalo como null
     if (formToSend.closeDate === "") formToSend.closeDate = null;
     // Siempre enviar open_date en snake_case y nunca vacío
@@ -184,6 +186,16 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
               {TYPES.map(t => <option key={t}>{t}</option>)}
             </select>
           </div>
+          {form.type === "Futuros" && (
+            <div>
+              <label className="block text-xs mb-1">Apalancamiento</label>
+              <select name="leverage" value={form.leverage || "1"} onChange={handleChange} className="input-dark">
+                {Array.from({length: 20}, (_, i) => i + 1).map(x => (
+                  <option key={x} value={x}>{`x${x}`}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div>
             <label className="block text-xs mb-1">Posición</label>
             <select name="position" value={form.position} onChange={handleChange} className="input-dark">
