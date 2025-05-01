@@ -7,10 +7,14 @@ const POSITIONS = ["Long", "Short"];
 const STRATEGIES = ["Scalping", "Swing", "DCA", "Breakout"];
 
 export default function TradeForm({ open, onClose, onSave, initial }) {
-  // Fecha de hoy en formato yyyy-mm-dd
+  // Si recibimos initial (modo edición), inicializamos el formulario con esos valores
   const today = new Date().toISOString().slice(0, 10);
   const [form, setForm] = useState(
-    initial || {
+    initial ? {
+      ...initial,
+      openDate: initial.open_date || initial.openDate || today,
+      closeDate: initial.close_date || initial.closeDate || "",
+    } : {
       openDate: today,
       closeDate: "",
       pair: "BTC/USDT",
@@ -25,6 +29,19 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
       leverage: "1"
     }
   );
+
+  // Cuando cambia initial (nuevo trade a editar), actualiza el formulario
+  React.useEffect(() => {
+    if (initial) {
+      setForm({
+        ...initial,
+        openDate: initial.open_date || initial.openDate || today,
+        closeDate: initial.close_date || initial.closeDate || "",
+      });
+    }
+  }, [initial]);
+
+
   const [error, setError] = useState("");
   const [pairs, setPairs] = useState([]);
   const [filteredPairs, setFilteredPairs] = useState([]);

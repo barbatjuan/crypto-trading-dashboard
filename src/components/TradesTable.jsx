@@ -38,12 +38,12 @@ function formatShortDate(dateStr) {
   return `${day}/${month}/${year}`;
 }
 
-export default function TradesTable({ trades, deleteTrade, updateTrade }) {
+export default function TradesTable({ trades, deleteTrade, updateTrade, onEditTrade }) {
   // Obtener todos los pares únicos de los trades abiertos
   const openPairs = Array.from(new Set(trades.filter(t => !t.exit).map(t => (t.pair || '').replace('/', '').toUpperCase())));
   const prices = useBinancePrices(openPairs);
-  const [modal, setModal] = useState({ open: false, idx: null, value: "" });
-  const [deleteConfirm, setDeleteConfirm] = useState({ open: false, idx: null });
+  const [modal, setModal] = useState({ open: false, trade: null, value: "" });
+  const [deleteConfirm, setDeleteConfirm] = useState({ open: false, trade: null });
   // Responsive: móvil
   const [isMobile, setIsMobile] = React.useState(false);
   React.useEffect(() => {
@@ -61,21 +61,17 @@ export default function TradesTable({ trades, deleteTrade, updateTrade }) {
   const pageCount = Math.ceil(trades.length / pageSize);
   const pagedTrades = trades.slice((page-1)*pageSize, page*pageSize);
 
-  function handleCloseTrade(idx) {
-    setModal({ open: true, idx, value: "" });
+  function handleCloseTrade(trade) {
+    setModal({ open: true, trade, value: "" });
   }
   function handleModalChange(e) {
     setModal(m => ({ ...m, value: e.target.value }));
   }
   function handleModalConfirm() {
-    const idx = modal.idx;
+    const trade = modal.trade;
     const exit = modal.value;
-    if (!exit || isNaN(Number(exit))) return;
+    if (!trade || !exit || isNaN(Number(exit))) return;
     const today = new Date().toISOString().slice(0, 10);
-    const trade = trades[idx];
-    const { result, resultPct } = calcularResultado(trade, exit);
-    const days = trade.openDate ? Math.max(1, Math.ceil((new Date(today) - new Date(trade.openDate)) / (1000 * 60 * 60 * 24))) : 1;
-    // Eliminar result y resultPct porque la tabla no los tiene
     const updated = {
       ...trade,
       exit,
@@ -84,24 +80,28 @@ export default function TradesTable({ trades, deleteTrade, updateTrade }) {
     delete updated.result;
     delete updated.resultPct;
     updateTrade(trade.id, updated);
-    setModal({ open: false, idx: null, value: "" });
+    setModal({ open: false, trade: null, value: "" });
   }
   function handleModalCancel() {
-    setModal({ open: false, idx: null, value: "" });
+    setModal({ open: false, trade: null, value: "" });
   }
 
   function handleDeleteConfirm() {
-    if (deleteConfirm.idx !== null) {
-      const trade = pagedTrades[deleteConfirm.idx];
-      if (trade && trade.id) {
-        deleteTrade(trade.id);
-      }
+    if (deleteConfirm.trade && deleteConfirm.trade.id) {
+      deleteTrade(deleteConfirm.trade.id);
     }
-    setDeleteConfirm({ open: false, idx: null });
+    setDeleteConfirm({ open: false, trade: null });
   }
 
   function handleDeleteCancel() {
-    setDeleteConfirm({ open: false, idx: null });
+    setDeleteConfirm({ open: false, trade: null });
+  }
+
+  // Handler para editar trade
+  function handleEditTrade(idx) {
+    if (onEditTrade) {
+      onEditTrade(trades[idx]);
+    }
   }
 
   if (isMobile) {
@@ -172,7 +172,7 @@ export default function TradesTable({ trades, deleteTrade, updateTrade }) {
                       {!trade.exit && !trade.closeDate && (
                         <button
                           className="text-xs text-blue-400 hover:underline mr-2"
-                          onClick={() => handleCloseTrade(idx)}
+                          onClick={() => handleCloseTrade(trade)}
                         >
                           Cerrar
                         </button>
@@ -180,7 +180,7 @@ export default function TradesTable({ trades, deleteTrade, updateTrade }) {
                       <button
                         className="text-xs text-red-400 hover:text-red-600"
                         title="Borrar trade"
-                        onClick={() => setDeleteConfirm({ open: true, idx })}
+                        onClick={() => setDeleteConfirm({ open: true, trade })}
                       >
                         🗑️
                       </button>
@@ -393,6 +393,16 @@ export default function TradesTable({ trades, deleteTrade, updateTrade }) {
                       </button>
                     </div>
                   </td>
+                {/* Botón editar */}
+                <td className="px-2 py-1 text-center">
+                  <button
+                    className="text-[#7aa2f7] hover:text-[#9ece6a] transition-colors"
+                    title="Editar"
+                    onClick={() => handleEditTrade(idx)}
+                  >
+                    ✎
+                  </button>
+                </td>
                 </tr>
               );
             })

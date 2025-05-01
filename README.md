@@ -4,7 +4,7 @@ Dashboard moderno para gestión y análisis de trades de criptomonedas.
 
 - **Stack:** React + Vite + TailwindCSS
 - **Funcionalidad:**
-  - Registro de trades (añadir, cerrar, persistencia local)
+  - Registro de trades (añadir, cerrar, persistencia en Supabase)
   - Precios en vivo desde Binance
   - Métricas clave y cards resumen
   - Modal dark mode para añadir/cerrar trades
@@ -19,7 +19,7 @@ npm run dev
 
 ## Características
 - Dark mode profesional
-- Persistencia en localStorage
+- Persistencia en Supabase
 - Actualización de precios cada 10 segundos
 - Modal de cierre de trades con confirmación
 

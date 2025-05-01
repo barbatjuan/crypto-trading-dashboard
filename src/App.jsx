@@ -17,6 +17,7 @@ export default function App() {
   }, []);
 
   const [showForm, setShowForm] = useState(false);
+  const [editTrade, setEditTrade] = useState(null);
   const { trades, loading, error, addTrade, deleteTrade, updateTrade } = useSupabaseTrades();
 
   const [session, setSession] = useState(null);
@@ -42,7 +43,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-surface text-gray-100">
-      <DashboardHeader onAddTrade={() => setShowForm(true)} onLogout={handleLogout} />
+      <DashboardHeader onAddTrade={() => { setShowForm(true); setEditTrade(null); }} onLogout={handleLogout} />
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-8">
         <LivePrices />
         <BtcCandlesChart />
@@ -51,17 +52,26 @@ export default function App() {
         <StatsCards trades={trades} />
         {/* Tabla Spot */}
         <h2 className="mt-8 mb-2 text-lg font-bold text-[#7aa2f7]">Trades Spot</h2>
-        <TradesTable trades={trades.filter(t => t.type === "Spot")} deleteTrade={deleteTrade} updateTrade={updateTrade} />
+        <TradesTable trades={trades.filter(t => t.type === "Spot")} deleteTrade={deleteTrade} updateTrade={updateTrade} onEditTrade={(trade) => { setEditTrade(trade); setShowForm(true); }} />
         {/* Tabla Futuros */}
         <h2 className="mt-8 mb-2 text-lg font-bold text-[#e0af68]">Trades Futuros</h2>
-        <TradesTable trades={trades.filter(t => t.type === "Futuros")} deleteTrade={deleteTrade} updateTrade={updateTrade} />
+        <TradesTable trades={trades.filter(t => t.type === "Futuros")} deleteTrade={deleteTrade} updateTrade={updateTrade} onEditTrade={(trade) => { setEditTrade(trade); setShowForm(true); }} />
         {/* Gráficos de trades */}
         <TradesCharts trades={trades} />
       </main>
       <TradeForm
         open={showForm}
-        onClose={() => setShowForm(false)}
-        onSave={addTrade}
+        onClose={() => { setShowForm(false); setEditTrade(null); }}
+        onSave={(trade) => {
+          if (editTrade) {
+            updateTrade(editTrade.id, trade);
+          } else {
+            addTrade(trade);
+          }
+          setShowForm(false);
+          setEditTrade(null);
+        }}
+        initial={editTrade}
       />
     </div>
   );
