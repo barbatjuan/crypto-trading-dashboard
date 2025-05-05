@@ -67,20 +67,34 @@ export default function TradesTable({ trades, deleteTrade, updateTrade, onEditTr
   function handleModalChange(e) {
     setModal(m => ({ ...m, value: e.target.value }));
   }
-  function handleModalConfirm() {
+  const [closeError, setCloseError] = useState("");
+
+  async function handleModalConfirm() {
     const trade = modal.trade;
     const exit = modal.value;
-    if (!trade || !exit || isNaN(Number(exit))) return;
+    setCloseError("");
+    if (!trade) {
+      setCloseError("Error interno: trade no seleccionado.");
+      return;
+    }
+    if (!exit || isNaN(Number(exit)) || Number(exit) <= 0) {
+      setCloseError("Ingresa un precio de cierre válido (mayor a 0).");
+      return;
+    }
     const today = new Date().toISOString().slice(0, 10);
     const updated = {
       ...trade,
-      exit,
+      exit: Number(exit),
       closeDate: today
     };
     delete updated.result;
     delete updated.resultPct;
-    updateTrade(trade.id, updated);
-    setModal({ open: false, trade: null, value: "" });
+    try {
+      await updateTrade(trade.id, updated);
+      setModal({ open: false, trade: null, value: "" });
+    } catch (e) {
+      setCloseError("Error al cerrar trade: " + (e?.message || e));
+    }
   }
   function handleModalCancel() {
     setModal({ open: false, trade: null, value: "" });
@@ -98,9 +112,9 @@ export default function TradesTable({ trades, deleteTrade, updateTrade, onEditTr
   }
 
   // Handler para editar trade
-  function handleEditTrade(idx) {
+  function handleEditTrade(trade) {
     if (onEditTrade) {
-      onEditTrade(trades[idx]);
+      onEditTrade(trade);
     }
   }
 
@@ -227,7 +241,11 @@ export default function TradesTable({ trades, deleteTrade, updateTrade, onEditTr
                   value={modal.value}
                   onChange={handleModalChange}
                   placeholder="Ej: 65000"
+                  min="0.0001"
                 />
+                {closeError && (
+                  <div className="mt-2 text-xs text-red-400 text-center">{closeError}</div>
+                )}
               </div>
               <div className="flex gap-2 justify-end mt-4">
                 <button onClick={handleModalCancel} className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600">Cancelar</button>
@@ -379,7 +397,7 @@ export default function TradesTable({ trades, deleteTrade, updateTrade, onEditTr
                       {!trade.exit && !trade.closeDate && (
                         <button
                           className="text-xs text-blue-400 hover:underline mr-2"
-                          onClick={() => handleCloseTrade(idx)}
+                          onClick={() => handleCloseTrade(trade)}
                         >
                           Cerrar
                         </button>
@@ -387,7 +405,7 @@ export default function TradesTable({ trades, deleteTrade, updateTrade, onEditTr
                       <button
                         className="text-xs text-red-400 hover:text-red-600"
                         title="Borrar trade"
-                        onClick={() => setDeleteConfirm({ open: true, idx })}
+                        onClick={() => setDeleteConfirm({ open: true, trade })}
                       >
                         🗑️
                       </button>
@@ -398,7 +416,7 @@ export default function TradesTable({ trades, deleteTrade, updateTrade, onEditTr
                   <button
                     className="text-[#7aa2f7] hover:text-[#9ece6a] transition-colors"
                     title="Editar"
-                    onClick={() => handleEditTrade(idx)}
+                    onClick={() => handleEditTrade(trade)}
                   >
                     ✎
                   </button>

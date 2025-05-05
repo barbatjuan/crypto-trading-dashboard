@@ -11,18 +11,22 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
   const today = new Date().toISOString().slice(0, 10);
   const [form, setForm] = useState(
     initial ? {
-      ...initial,
+      // Solo los datos de apertura
       openDate: initial.open_date || initial.openDate || today,
-      closeDate: initial.close_date || initial.closeDate || "",
+      pair: initial.pair || "BTC/USDT",
+      type: initial.type || "Spot",
+      position: initial.position || "Long",
+      entry: initial.entry || "",
+      amount: initial.amount || "",
+      strategy: initial.strategy || "Scalping",
+      notes: initial.notes || "",
+      leverage: initial.leverage || "1"
     } : {
       openDate: today,
-      closeDate: "",
       pair: "BTC/USDT",
       type: "Spot",
       position: "Long",
       entry: "",
-      expectedExit: "",
-      exit: "",
       amount: "",
       strategy: "Scalping",
       notes: "",
@@ -34,9 +38,15 @@ export default function TradeForm({ open, onClose, onSave, initial }) {
   React.useEffect(() => {
     if (initial) {
       setForm({
-        ...initial,
         openDate: initial.open_date || initial.openDate || today,
-        closeDate: initial.close_date || initial.closeDate || "",
+        pair: initial.pair || "BTC/USDT",
+        type: initial.type || "Spot",
+        position: initial.position || "Long",
+        entry: initial.entry || "",
+        amount: initial.amount || "",
+        strategy: initial.strategy || "Scalping",
+        notes: initial.notes || "",
+        leverage: initial.leverage || "1"
       });
     }
   }, [initial]);
